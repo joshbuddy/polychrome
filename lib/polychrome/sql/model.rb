@@ -19,20 +19,19 @@ module Polychrome
       end
 
       def self.get(id)
-        results = Context.connection.execute2("select * from #{tablename} where id = ?", [id])
-        cols = results.shift
-        new(**Hash[cols.zip(results[0])])
+        results = Context.connection["select * from #{tablename} where id = ?", id].first
+        new(**results)
       end
 
       def self.tablename
         to_s.downcase.pluralize
       end
 
-      def self.sql(statement, vars)
+      def self.sql(statement, *vars)
         puts "statement: #{statement} vars: #{vars.inspect}"
-        results = Context.connection.execute2(statement, vars)
-        cols = results.shift
-        results.map { |r| new(**Hash[cols.zip(r)]) }
+        results = Context.connection[statement, *vars]
+        p results.count
+        results.map { |r| new(**r) }
       end
 
       def self.many(name, &lookup)
