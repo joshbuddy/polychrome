@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "weakref"
+require "objspace"
 
 module Polychrome
   class Context
@@ -12,17 +12,8 @@ module Polychrome
       STACK.last
     end
 
-    def initialize
-      @map = {}
-    end
-
-    def add(o)
-      @map[o.class] ||= []
-      @map[o.class] << WeakRef.new(o)
-    end
-
     def all(cls)
-      @map[cls] || []
+      ObjectSpace.each_object(cls)
     end
 
     def with
