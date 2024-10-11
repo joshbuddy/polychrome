@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "objspace"
+require "weakref"
 
 module Polychrome
   class Context
@@ -8,12 +8,21 @@ module Polychrome
       attr_accessor :connection
     end
 
+    def initialize
+      @objs = {}
+    end
+
     def self.current
       STACK.last
     end
 
+    def add(instance)
+      @objs[instance.class] ||= []
+      @objs[instance.class] << WeakRef.new(instance)
+    end
+
     def all(cls)
-      ObjectSpace.each_object(cls)
+      @objs[cls]
     end
 
     def with
